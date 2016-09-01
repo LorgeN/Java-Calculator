@@ -3,5 +3,6 @@ package com.lorgen.calculator.components;
 public enum ComponentType {
     OPERATOR,
     VALUE_NUMERICAL,
-    UNKNOWN_VARIABLE
+    UNKNOWN_VARIABLE,
+    BINARY_OPERATION
 }
