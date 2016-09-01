@@ -53,9 +53,12 @@ public class Operation implements NumericalValue {
         }
 
         System.out.println("Components in operation " + this.getRawString() + ":");
-        for (Component component : this.getComponents()) {
+        StringBuilder builder = new StringBuilder();
+        this.getComponents().stream().forEach(component -> builder.append(component.getRawString() + " "));
+        this.rawString = builder.toString().trim();
+        System.out.println("Recompiled string: " + this.getRawString());
+        for (Component component : this.getComponents())
             System.out.println("  - " + component.getComponentType() + " (" + component.getRawString() + ")");
-        }
     }
 
     @Override
