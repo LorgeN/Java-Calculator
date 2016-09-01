@@ -1,36 +1,31 @@
 package com.lorgen.calculator.numerical;
 
-import com.lorgen.calculator.abstracts.NumericalValue;
+import com.lorgen.calculator.components.Component;
+import com.lorgen.calculator.components.NumericalValue;
+import com.lorgen.calculator.components.Operator;
 import lombok.Getter;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Operation implements NumericalValue {
     @Getter private String rawString;
-    @Getter private List<NumericalParentheses> parentheses;
-    @Getter private List<BinaryOperation> operations;
+    @Getter private List<Component> components;
 
     public Operation(String raw) {
         this.rawString = raw;
-        this.parentheses = new LinkedList<>();
-        this.operations = new LinkedList<>();
-
+        this.components = new LinkedList<>();
+        String fromPreviousOperator = raw;
+        char ch;
         if (raw.indexOf('(') != -1) {
-            Map<Integer, Integer> parenthesesLocations = new LinkedHashMap<>();
-
-            char ch;
             for (int i = 0; i < raw.length(); i++) {
                 ch = raw.charAt(i);
                 if (ch == '(') {
+                    i++;
                     int starting = i;
                     int closing = 0;
                     boolean foundClosing = false;
                     int parenthesesWithin = 0;
-                    i++;
 
                     while (!foundClosing) {
                         ch = raw.charAt(i);
@@ -45,18 +40,27 @@ public class Operation implements NumericalValue {
                         i++;
                     }
 
-                    parenthesesLocations.put(starting, closing);
+                    components.add(new NumericalParentheses(raw.substring(starting, closing)));
+                } else if (Operator.isOperator(ch)) {
+                    Operator operator = Operator.fromCharacter(ch);
+                    int index = fromPreviousOperator.indexOf(ch);
+                    double prev = Double.valueOf(fromPreviousOperator.substring(0, index));
+                    fromPreviousOperator = fromPreviousOperator.substring(index + 2);
+                    this.components.add(NumericalValue.fromDouble(prev));
+                    this.components.add(operator);
                 }
             }
+        }
 
-            this.parentheses.addAll(parenthesesLocations.entrySet().stream().map(entry ->
-                    new NumericalParentheses(raw.substring(entry.getKey() + 1, entry.getValue() - 1)))
-                    .collect(Collectors.toList()));
+        System.out.println("Components in operation " + this.getRawString() + ":");
+        for (Component component : this.getComponents()) {
+            System.out.println("  - " + component.getComponentType() + " (" + component.getRawString() + ")");
         }
     }
 
     @Override
     public double getValue() {
+        //TODO: Perform operation
         return 0;
     }
 }

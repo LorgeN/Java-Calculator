@@ -1,11 +1,10 @@
 package com.lorgen.calculator.components;
 
-import com.lorgen.calculator.abstracts.NumericalValue;
 import lombok.Getter;
 
 import java.util.Arrays;
 
-public enum Operator {
+public enum Operator implements Component {
     ADDITION(Priority.STANDARD, '+') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
@@ -39,15 +38,18 @@ public enum Operator {
 
     @Getter private char[] characters;
     @Getter private Priority priority;
+    @Getter private ComponentType componentType = ComponentType.OPERATOR;
+    @Getter private String rawString;
 
     Operator(Priority priority, char... chars) {
         this.characters = chars;
         this.priority = priority;
+        this.rawString = chars[0] + "";
     }
     
     public abstract NumericalValue calculate(NumericalValue operand1, NumericalValue operand2);
 
-    public static boolean isBinaryOperator(char ch) {
+    public static boolean isOperator(char ch) {
         return Operator.fromCharacter(ch) != null;
     }
 
