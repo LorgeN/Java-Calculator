@@ -31,7 +31,7 @@ public class CommandManager {
         String[] args;
         if (line.contains(" ")) {
             cmd = line.substring(0, line.indexOf(" "));
-            args = line.substring(line.indexOf(" ")).split(" ");
+            args = line.substring(line.indexOf(" ") + 1).split(" ");
         } else {
             cmd = line.trim();
             args = new String[0];

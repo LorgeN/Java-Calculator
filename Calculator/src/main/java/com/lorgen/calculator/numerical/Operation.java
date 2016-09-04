@@ -16,6 +16,10 @@ public class Operation implements NumericalValue {
     @Getter private String rawString;
     @Getter private List<Component> components;
 
+    private boolean containsHigh = false;
+    private boolean containsAboveStandard = false;
+    private boolean containsStandard = false;
+
     public Operation(String raw) {
         this.rawString = raw;
         ConsoleHandler.getInstance().info("New operation! " + TextColor.LIGHT_PURPLE + "(" + raw + ")");
@@ -37,15 +41,19 @@ public class Operation implements NumericalValue {
                         if (parenthesesWithin == 0) {
                             closing = i;
                             break identifyClosing;
-                        } else {
-                            parenthesesWithin--;
-                        }
+                        } else parenthesesWithin--;
                     }
                 }
 
                 this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
-                leftToEval = leftToEval.substring(closing + 1);
-                ConsoleHandler.getInstance().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
+                if (i + 1 == raw.length()) {
+                    ConsoleHandler.getInstance().info("Completed evaluating operation.");
+                } else {
+                    leftToEval = raw.substring(closing + 1);
+                    ConsoleHandler.getInstance().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
+                }
+
+                this.containsHigh = true;
             } else if (Operator.isOperator(ch)) {
                 ConsoleHandler.getInstance().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
                 Operator operator = Operator.fromCharacter(ch);
@@ -54,6 +62,18 @@ public class Operation implements NumericalValue {
                 this.components.add(operator);
                 leftToEval = leftToEval.substring(index + 1);
                 ConsoleHandler.getInstance().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
+
+                switch (operator.getPriority()) {
+                    case HIGH:
+                        this.containsHigh = true;
+                        break;
+                    case ABOVE_STANDARD:
+                        this.containsAboveStandard = true;
+                        break;
+                    case STANDARD:
+                        this.containsStandard = true;
+                        break;
+                }
             } else if (i + 1 == raw.length()) {
                 double prev = Double.valueOf(leftToEval);
                 this.components.add(NumericalValue.fromDouble(prev));
@@ -68,15 +88,23 @@ public class Operation implements NumericalValue {
 
     @Override
     public double getValue() throws UnexpectedResultException {
-        this.components = sort(this.getComponents(), Priority.HIGH);
-        ConsoleHandler.getInstance().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH" + TextColor.RESET + ":");
-        this.printComponents();
-        this.components = sort(this.getComponents(), Priority.ABOVE_STANDARD);
-        ConsoleHandler.getInstance().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD" + TextColor.RESET + ":");
-        this.printComponents();
-        this.components = sort(this.getComponents(), Priority.STANDARD);
-        ConsoleHandler.getInstance().info("Sorted components for priority level "+ TextColor.LIGHT_PURPLE + "STANDARD" + TextColor.RESET +":");
-        this.printComponents();
+        if (this.containsHigh) {
+            this.components = sort(this.getComponents(), Priority.HIGH);
+            ConsoleHandler.getInstance().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH" + TextColor.RESET + ":");
+            this.printComponents();
+        }
+
+        if (this.containsAboveStandard) {
+            this.components = sort(this.getComponents(), Priority.ABOVE_STANDARD);
+            ConsoleHandler.getInstance().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD" + TextColor.RESET + ":");
+            this.printComponents();
+        }
+
+        if (this.containsStandard) {
+            this.components = sort(this.getComponents(), Priority.STANDARD);
+            ConsoleHandler.getInstance().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD" + TextColor.RESET + ":");
+            this.printComponents();
+        }
 
         if (this.getComponents().size() > 1) throw new UnexpectedResultException("More components than expected!");
         if (!(this.getComponents().get(0) instanceof NumericalValue)) throw new UnexpectedResultException("Final component isn't a numerical value!");
