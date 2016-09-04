@@ -118,7 +118,7 @@ public class Operation implements NumericalValue {
 
     private String getEvaluatedString() {
         StringBuilder builder = new StringBuilder();
-        this.getComponents().stream().forEach(component -> builder.append(component.getRawString() + " "));
+        this.getComponents().forEach(component -> builder.append(component.getRawString() + " "));
         return builder.toString().trim();
     }
 
