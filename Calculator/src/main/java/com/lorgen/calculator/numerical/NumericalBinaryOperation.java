@@ -3,7 +3,10 @@ package com.lorgen.calculator.numerical;
 import com.lorgen.calculator.components.ComponentType;
 import com.lorgen.calculator.components.NumericalValue;
 import com.lorgen.calculator.components.Operator;
+import com.lorgen.calculator.exception.UnexpectedResultException;
 import lombok.Getter;
+
+import java.rmi.UnexpectedException;
 
 public class NumericalBinaryOperation implements NumericalValue {
 
@@ -20,11 +23,16 @@ public class NumericalBinaryOperation implements NumericalValue {
 
     @Override
     public double getValue() {
-        return this.getOperator().calculate(this.getOperand1(), this.getOperand2()).getValue();
+        try {
+            return this.getOperator().calculate(this.getOperand1(), this.getOperand2()).getValue();
+        } catch (UnexpectedResultException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override
     public String getRawString() {
-        return operand1.getRawString() + " " + operator.getRawString() + " " + operand2.getRawString();
+        return "(" + operand1.getRawString() + " " + operator.getRawString() + " " + operand2.getRawString() + ")";
     }
 }

@@ -1,9 +1,9 @@
 package com.lorgen.calculator.components;
 
-import java.rmi.UnexpectedException;
+import com.lorgen.calculator.exception.UnexpectedResultException;
 
 public interface NumericalValue extends Component {
-    double getValue() throws UnexpectedException;
+    double getValue() throws UnexpectedResultException;
 
     default ComponentType getComponentType() {
         return ComponentType.VALUE_NUMERICAL;

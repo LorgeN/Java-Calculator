@@ -4,12 +4,12 @@ import lombok.Getter;
 
 public abstract class Command {
     @Getter private String name;
-    @Getter private String usage;
+    @Getter private String info;
     @Getter private String[] aliases;
 
-    public Command(String name, String usage, String... aliases) {
+    public Command(String name, String info, String... aliases) {
         this.name = name;
-        this.usage = usage;
+        this.info = info;
         this.aliases = aliases;
     }
 

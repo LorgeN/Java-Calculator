@@ -1,5 +1,6 @@
 package com.lorgen.calculator.components;
 
+import com.lorgen.calculator.exception.UnexpectedResultException;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -8,43 +9,68 @@ public enum Operator implements Component {
     ADDITION(Priority.STANDARD, '+') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
-            return NumericalValue.fromDouble(operand1.getValue() + operand2.getValue());
+            try {
+                return NumericalValue.fromDouble(operand1.getValue() + operand2.getValue());
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     },
     SUBTRACTION(Priority.STANDARD, '-') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
-            return NumericalValue.fromDouble(operand1.getValue() - operand2.getValue());
+            try {
+                return NumericalValue.fromDouble(operand1.getValue() - operand2.getValue());
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     },
     MULTIPLICATION(Priority.ABOVE_STANDARD, '*') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
-            return NumericalValue.fromDouble(operand1.getValue() * operand2.getValue());
+            try {
+                return NumericalValue.fromDouble(operand1.getValue() * operand2.getValue());
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     },
     DIVISION(Priority.ABOVE_STANDARD, '/') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
-            return NumericalValue.fromDouble(operand1.getValue() / operand2.getValue());
+            try {
+                return NumericalValue.fromDouble(operand1.getValue() / operand2.getValue());
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     },
     EXPONENT(Priority.HIGH, '^') {
         @Override
         public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
-            return NumericalValue.fromDouble(Math.pow(operand1.getValue(), operand2.getValue()));
+            try {
+                return NumericalValue.fromDouble(Math.pow(operand1.getValue(), operand2.getValue()));
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     };
 
-    @Getter private char[] characters;
+    @Getter private char character;
     @Getter private Priority priority;
     @Getter private ComponentType componentType = ComponentType.OPERATOR;
     @Getter private String rawString;
 
-    Operator(Priority priority, char... chars) {
-        this.characters = chars;
+    Operator(Priority priority, char ch) {
+        this.character = ch;
         this.priority = priority;
-        this.rawString = chars[0] + "";
+        this.rawString = ch + "";
     }
     
     public abstract NumericalValue calculate(NumericalValue operand1, NumericalValue operand2);
@@ -54,6 +80,6 @@ public enum Operator implements Component {
     }
 
     public static Operator fromCharacter(char ch) {
-        return Arrays.stream(Operator.values()).filter(operator -> Arrays.asList(operator).contains(ch)).findFirst().get();
+        return Arrays.stream(Operator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().orElse(null);
     }
 }
