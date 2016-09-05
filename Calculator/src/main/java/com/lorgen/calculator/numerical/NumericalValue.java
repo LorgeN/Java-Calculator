@@ -1,5 +1,6 @@
-package com.lorgen.calculator.components;
+package com.lorgen.calculator.numerical;
 
+import com.lorgen.calculator.components.Component;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 
 public interface NumericalValue extends Component {

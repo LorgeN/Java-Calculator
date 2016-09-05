@@ -1,12 +1,8 @@
 package com.lorgen.calculator.numerical;
 
-import com.lorgen.calculator.components.ComponentType;
-import com.lorgen.calculator.components.NumericalValue;
 import com.lorgen.calculator.components.Operator;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import lombok.Getter;
-
-import java.rmi.UnexpectedException;
 
 public class NumericalBinaryOperation implements NumericalValue {
 

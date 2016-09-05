@@ -1,5 +1,6 @@
 package com.lorgen.calculator.ui;
 
+import com.lorgen.calculator.Calculator;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -7,8 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CommandManager {
-    @Getter private static CommandManager instance = new CommandManager();
-
     @Getter private List<Command> commands;
 
     public CommandManager() {
@@ -16,8 +15,8 @@ public class CommandManager {
         this.registerCommand(new Command("help", "View all commands") {
             @Override
             public void execute(String[] args) {
-                ConsoleHandler.getInstance().info("All commands:");
-                for (Command cmd : getCommands()) ConsoleHandler.getInstance().info("  - " + cmd.getName() + " (" + cmd.getInfo() + ")");
+                Calculator.getConsole().info("All commands:");
+                for (Command cmd : getCommands()) Calculator.getConsole().info("  - " + cmd.getName() + " (" + cmd.getInfo() + ")");
             }
         });
     }

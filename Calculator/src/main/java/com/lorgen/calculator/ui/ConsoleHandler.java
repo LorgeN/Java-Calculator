@@ -2,24 +2,23 @@ package com.lorgen.calculator.ui;
 
 import java.io.IOException;
 
+import com.lorgen.calculator.Calculator;
 import jline.console.ConsoleReader;
 import lombok.Getter;
 import org.fusesource.jansi.Ansi;
 
 public class ConsoleHandler {
-    @Getter private static ConsoleHandler instance = new ConsoleHandler();
-
     private ConsoleReader reader;
 
-    private ConsoleHandler() {
+    public ConsoleHandler() {
         try {
             this.reader = new ConsoleReader();
             Thread thread = new Thread(() -> {
                 try {
                     String line;
                     while ((line = this.reader.readLine()) != null)
-                        if (!CommandManager.getInstance().invokeCommand(line))
-                            ConsoleHandler.getInstance().err("Command not found! Type \"help\" for help.");
+                        if (!Calculator.getCommandManager().invokeCommand(line))
+                            Calculator.getConsole().err("Command not found! Type \"help\" for help.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -1,6 +1,7 @@
 package com.lorgen.calculator.components;
 
 import com.lorgen.calculator.exception.UnexpectedResultException;
+import com.lorgen.calculator.numerical.NumericalValue;
 import lombok.Getter;
 
 import java.util.Arrays;

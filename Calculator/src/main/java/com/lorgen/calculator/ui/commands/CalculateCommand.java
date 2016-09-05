@@ -1,5 +1,6 @@
 package com.lorgen.calculator.ui.commands;
 
+import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import com.lorgen.calculator.numerical.Operation;
 import com.lorgen.calculator.ui.Command;
@@ -17,18 +18,18 @@ public class CalculateCommand extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length == 0) {
-            ConsoleHandler.getInstance().err("Please input an argument!");
+            Calculator.getConsole().err("Please input an argument!");
         } else {
             StringBuilder builder = new StringBuilder();
             Arrays.stream(args).forEach(s -> builder.append(s));
             String string = builder.toString().trim();
-            ConsoleHandler.getInstance().info("Initiating evaluation process for " + TextColor.LIGHT_PURPLE + string + TextColor.RESET + ":");
+            Calculator.getConsole().info("Initiating evaluation process for " + TextColor.LIGHT_PURPLE + string + TextColor.RESET + ":");
             Operation operation = new Operation(string);
-            ConsoleHandler.getInstance().info("Initiating calculation...");
+            Calculator.getConsole().info("Initiating calculation...");
 
             try {
                 double value = operation.getValue();
-                ConsoleHandler.getInstance().info("Value found: " + TextColor.LIGHT_PURPLE + value);
+                Calculator.getConsole().info("Value found: " + TextColor.LIGHT_PURPLE + value);
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
             }
