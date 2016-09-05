@@ -25,7 +25,7 @@ public class Operation implements NumericalObject {
 
     public Operation(String raw) throws EvaluationException {
         this.rawString = raw;
-        Calculator.getConsole().info("New operation " + TextColor.LIGHT_PURPLE + "(" + raw + ")");
+        Calculator.getConsole().info("New operation " + TextColor.LIGHT_PURPLE + "\"" + raw + "\":");
 
         this.components = new LinkedList<>();
         String leftToEval = raw;
