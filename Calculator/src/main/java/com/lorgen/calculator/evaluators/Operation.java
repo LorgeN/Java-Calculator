@@ -6,10 +6,9 @@ import com.lorgen.calculator.components.Operator;
 import com.lorgen.calculator.components.Operator.Priority;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.numerical.Number;
 import com.lorgen.calculator.numerical.NumericalBinaryOperation;
-import com.lorgen.calculator.numerical.NumericalParentheses;
 import com.lorgen.calculator.numerical.NumericalObject;
+import com.lorgen.calculator.numerical.NumericalParentheses;
 import com.lorgen.calculator.ui.TextColor;
 import lombok.Getter;
 
@@ -56,8 +55,12 @@ public class Operation implements NumericalObject {
                         }
                     }
 
+                    if (this.components.get(this.components.size() - 1).equals(Operator.SUBTRACTION)) {
+                        this.components.set(this.components.size() - 1, NumericalObject.fromDouble(-1.0));
+                        this.components.add(Operator.MULTIPLICATION);
+                    }
+
                     this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
-                    this.containsHigh = true;
 
                     if (i + 1 == raw.length()) {
                         Calculator.getConsole().info("Completed evaluating operation.");
@@ -70,7 +73,6 @@ public class Operation implements NumericalObject {
                         }
                     }
                 } else if (Operator.isOperator(ch)) {
-                    if (leftToEval.indexOf(ch) == 0) continue;
                     Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
                     Operator operator = Operator.fromCharacter(ch);
                     int index = leftToEval.indexOf(ch);
@@ -129,19 +131,19 @@ public class Operation implements NumericalObject {
     private void prioritize() throws UnexpectedResultException {
         if (this.containsHigh) {
             this.components = sortAfterPriority(this.getComponents(), Priority.HIGH);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH " + TextColor.PURPLE + "(\"(xx)\", \"x^x\")" + TextColor.RESET + ":");
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH " + TextColor.PURPLE + "(\"(--)\", \"x^y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
 
         if (this.containsAboveStandard) {
             this.components = sortAfterPriority(this.getComponents(), Priority.ABOVE_STANDARD);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD " + TextColor.PURPLE + "(\"*\", \"/\")" + TextColor.RESET + ":");
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD " + TextColor.PURPLE + "(\"x*y\", \"x/y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
 
         if (this.containsStandard) {
             this.components = sortAfterPriority(this.getComponents(), Priority.STANDARD);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD " + TextColor.PURPLE + "(\"-\", \"+\")" + TextColor.RESET + ":");
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD " + TextColor.PURPLE + "(\"x-y\", \"x+y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
 
@@ -153,8 +155,8 @@ public class Operation implements NumericalObject {
         if (list.size() == 1) return list;
         List<Component> refreshedComponents = new LinkedList<>();
         refreshedComponents.add(list.get(0));
-        for (int i = 1; i < list.size(); i++) {
-            if (list.get(i) instanceof Operator) {
+        for (int i = 1; i < list.size() - 1; i++) {
+            if (list.get(i) instanceof Operator && list.get(i - 1) instanceof NumericalObject && list.get(i + 1) instanceof NumericalObject) {
                 Operator operator = (Operator) list.get(i);
                 if (operator.getPriority() == priority) {
                     NumericalBinaryOperation operation = new NumericalBinaryOperation(operator,
