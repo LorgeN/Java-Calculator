@@ -118,13 +118,13 @@ public class Operation implements NumericalObject {
         return ((NumericalObject) this.getComponents().get(0)).getValue();
     }
 
-    private void printComponents() {
+    public void printComponents() {
         for (Component component : this.getComponents()) Calculator.getConsole().info("  - " + component.getComponentType() + ": " + TextColor.LIGHT_PURPLE + component.getRawString());
     }
 
-    private String getEvaluatedString() {
+    public String getEvaluatedString() {
         StringBuilder builder = new StringBuilder();
-        this.getComponents().forEach(component -> builder.append(component.getRawString() + " "));
+        this.getComponents().forEach(component -> builder.append(component.getRawString()));
         return builder.toString().trim();
     }
     

@@ -37,7 +37,8 @@ public class CalculateCommand extends Command {
 
             try {
                 double value = operation.getValue();
-                Calculator.getConsole().info("Value found: " + TextColor.LIGHT_PURPLE + value);
+                Calculator.getConsole().info("Final evaluation: " + TextColor.LIGHT_PURPLE + operation.getEvaluatedString());
+                Calculator.getConsole().info(TextColor.RED + string + TextColor.PURPLE + " = " + TextColor.RED + value);
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
             }
