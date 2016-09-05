@@ -4,6 +4,7 @@ import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.components.Component;
 import com.lorgen.calculator.components.Operator;
 import com.lorgen.calculator.components.Priority;
+import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import com.lorgen.calculator.ui.ConsoleHandler;
 import com.lorgen.calculator.ui.TextColor;
@@ -20,70 +21,77 @@ public class Operation implements NumericalValue {
     private boolean containsAboveStandard = false;
     private boolean containsStandard = false;
 
-    public Operation(String raw) {
+    public Operation(String raw) throws EvaluationException {
         this.rawString = raw;
         Calculator.getConsole().info("New operation! " + TextColor.LIGHT_PURPLE + "(" + raw + ")");
 
         this.components = new LinkedList<>();
         String leftToEval = raw;
 
-        for (int i = 0; i < raw.length(); i++) {
-            char ch = raw.charAt(i);
-            if (ch == '(') {
-                Calculator.getConsole().info("Found opening parentheses.");
-                int starting = i + 1, closing, parenthesesWithin = 0;
-                identifyClosing : while (true) {
-                    i++;
-                    ch = raw.charAt(i);
-                    if (ch == '(') {
-                        parenthesesWithin++;
-                    } else if (ch == ')') {
-                        if (parenthesesWithin == 0) {
-                            closing = i;
-                            break identifyClosing;
-                        } else parenthesesWithin--;
+        try {
+            for (int i = 0; i < raw.length(); i++) {
+                char ch = raw.charAt(i);
+                if (ch == '(') {
+                    Calculator.getConsole().info("Found opening parentheses.");
+                    int starting = i + 1, closing, parenthesesWithin = 0;
+                    identifyClosing:
+                    while (true) {
+                        i++;
+                        ch = raw.charAt(i);
+                        if (ch == '(') {
+                            parenthesesWithin++;
+                        } else if (ch == ')') {
+                            if (parenthesesWithin == 0) {
+                                closing = i;
+                                break identifyClosing;
+                            } else parenthesesWithin--;
+                        }
                     }
-                }
 
-                this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
-                if (i + 1 == raw.length()) {
-                    Calculator.getConsole().info("Completed evaluating operation.");
-                } else {
-                    leftToEval = raw.substring(closing + 1);
+                    this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
+                    this.containsHigh = true;
+
+                    if (i + 1 == raw.length()) {
+                        Calculator.getConsole().info("Completed evaluating operation.");
+                    } else {
+                        leftToEval = raw.substring(closing + 1);
+                        Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
+                    }
+                } else if (Operator.isOperator(ch)) {
+                    Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
+                    Operator operator = Operator.fromCharacter(ch);
+                    int index = leftToEval.indexOf(ch);
+                    if (index != 0)
+                        this.components.add(NumericalValue.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
+                    this.components.add(operator);
+                    leftToEval = leftToEval.substring(index + 1);
                     Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
-                }
 
-                this.containsHigh = true;
-            } else if (Operator.isOperator(ch)) {
-                Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
-                Operator operator = Operator.fromCharacter(ch);
-                int index = leftToEval.indexOf(ch);
-                if (index != 0) this.components.add(NumericalValue.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
-                this.components.add(operator);
-                leftToEval = leftToEval.substring(index + 1);
-                Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
-
-                switch (operator.getPriority()) {
-                    case HIGH:
-                        this.containsHigh = true;
-                        break;
-                    case ABOVE_STANDARD:
-                        this.containsAboveStandard = true;
-                        break;
-                    case STANDARD:
-                        this.containsStandard = true;
-                        break;
+                    switch (operator.getPriority()) {
+                        case HIGH:
+                            this.containsHigh = true;
+                            break;
+                        case ABOVE_STANDARD:
+                            this.containsAboveStandard = true;
+                            break;
+                        case STANDARD:
+                            this.containsStandard = true;
+                            break;
+                    }
+                } else if (i + 1 == raw.length()) {
+                    double prev = Double.valueOf(leftToEval);
+                    this.components.add(NumericalValue.fromDouble(prev));
+                    Calculator.getConsole().info("Completed evaluating operation.");
                 }
-            } else if (i + 1 == raw.length()) {
-                double prev = Double.valueOf(leftToEval);
-                this.components.add(NumericalValue.fromDouble(prev));
-                Calculator.getConsole().info("Completed evaluating operation.");
             }
-        }
 
-        Calculator.getConsole().info("Components in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + ":");
-        this.printComponents();
-        Calculator.getConsole().info("Re-evaluated string: " + TextColor.LIGHT_PURPLE + this.getEvaluatedString());
+            Calculator.getConsole().info("Components in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + ":");
+            this.printComponents();
+            Calculator.getConsole().info("Re-evaluated string: " + TextColor.LIGHT_PURPLE + this.getEvaluatedString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new EvaluationException("Unable to evaluate operation " + this.getRawString());
+        }
     }
     
     public Operation(List<Component> components) {

@@ -7,7 +7,8 @@ public interface Component {
     enum ComponentType {
         OPERATOR,
         VALUE_NUMERICAL,
-        UNKNOWN_VARIABLE,
-        BINARY_OPERATION
+        BINARY_OPERATION,
+        VARIABLE,
+        UNKNOWN
     }
 }
