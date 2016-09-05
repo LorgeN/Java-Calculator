@@ -3,7 +3,6 @@ package com.lorgen.calculator.ui.commands;
 import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.numerical.NumberUtils;
 import com.lorgen.calculator.ui.Command;
-import com.lorgen.calculator.ui.ConsoleHandler;
 import com.lorgen.calculator.ui.TextColor;
 
 public class IsPrimeCommand extends Command {

@@ -1,19 +1,22 @@
-package com.lorgen.calculator.numerical;
+package com.lorgen.calculator.evaluators;
 
 import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.components.Component;
 import com.lorgen.calculator.components.Operator;
-import com.lorgen.calculator.components.Priority;
+import com.lorgen.calculator.components.Operator.Priority;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.ui.ConsoleHandler;
+import com.lorgen.calculator.numerical.Number;
+import com.lorgen.calculator.numerical.NumericalBinaryOperation;
+import com.lorgen.calculator.numerical.NumericalParentheses;
+import com.lorgen.calculator.numerical.NumericalObject;
 import com.lorgen.calculator.ui.TextColor;
 import lombok.Getter;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class Operation implements NumericalValue {
+public class Operation implements NumericalObject {
     @Getter private String rawString;
     @Getter private List<Component> components;
 
@@ -23,7 +26,7 @@ public class Operation implements NumericalValue {
 
     public Operation(String raw) throws EvaluationException {
         this.rawString = raw;
-        Calculator.getConsole().info("New operation! " + TextColor.LIGHT_PURPLE + "(" + raw + ")");
+        Calculator.getConsole().info("New operation " + TextColor.LIGHT_PURPLE + "(" + raw + ")");
 
         this.components = new LinkedList<>();
         String leftToEval = raw;
@@ -34,8 +37,7 @@ public class Operation implements NumericalValue {
                 if (ch == '(') {
                     Calculator.getConsole().info("Found opening parentheses.");
                     int starting = i + 1, closing, parenthesesWithin = 0;
-                    identifyClosing:
-                    while (true) {
+                    identifyClosing: while (true) {
                         i++;
                         ch = raw.charAt(i);
                         if (ch == '(') {
@@ -58,11 +60,11 @@ public class Operation implements NumericalValue {
                         Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
                     }
                 } else if (Operator.isOperator(ch)) {
+                    if (leftToEval.indexOf(ch) == 0) continue;
                     Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
                     Operator operator = Operator.fromCharacter(ch);
                     int index = leftToEval.indexOf(ch);
-                    if (index != 0)
-                        this.components.add(NumericalValue.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
+                    if (index != 0) this.components.add(NumericalObject.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
                     this.components.add(operator);
                     leftToEval = leftToEval.substring(index + 1);
                     Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
@@ -80,14 +82,14 @@ public class Operation implements NumericalValue {
                     }
                 } else if (i + 1 == raw.length()) {
                     double prev = Double.valueOf(leftToEval);
-                    this.components.add(NumericalValue.fromDouble(prev));
+                    this.components.add(NumericalObject.fromDouble(prev));
                     Calculator.getConsole().info("Completed evaluating operation.");
                 }
             }
 
             Calculator.getConsole().info("Components in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + ":");
             this.printComponents();
-            Calculator.getConsole().info("Re-evaluated string: " + TextColor.LIGHT_PURPLE + this.getEvaluatedString());
+            Calculator.getConsole().info("Evaluated string: " + TextColor.LIGHT_PURPLE + this.getEvaluatedString());
         } catch (Exception e) {
             e.printStackTrace();
             throw new EvaluationException("Unable to evaluate operation " + this.getRawString());
@@ -95,32 +97,13 @@ public class Operation implements NumericalValue {
     }
     
     public Operation(List<Component> components) {
+        this.components = components;
     }
 
     @Override
     public double getValue() throws UnexpectedResultException {
-        if (this.containsHigh) {
-            this.components = sort(this.getComponents(), Priority.HIGH);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH" + TextColor.RESET + ":");
-            this.printComponents();
-        }
-
-        if (this.containsAboveStandard) {
-            this.components = sort(this.getComponents(), Priority.ABOVE_STANDARD);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD" + TextColor.RESET + ":");
-            this.printComponents();
-        }
-
-        if (this.containsStandard) {
-            this.components = sort(this.getComponents(), Priority.STANDARD);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD" + TextColor.RESET + ":");
-            this.printComponents();
-        }
-
-        if (this.getComponents().size() > 1) throw new UnexpectedResultException("More components than expected!");
-        if (!(this.getComponents().get(0) instanceof NumericalValue)) throw new UnexpectedResultException("Final component isn't a numerical value!");
-
-        return ((NumericalValue) this.getComponents().get(0)).getValue();
+        this.prioritize();
+        return ((NumericalObject) this.getComponents().get(0)).getValue();
     }
 
     private void printComponents() {
@@ -132,8 +115,55 @@ public class Operation implements NumericalValue {
         this.getComponents().forEach(component -> builder.append(component.getRawString() + " "));
         return builder.toString().trim();
     }
+    
+    private void prioritize() throws UnexpectedResultException {
+        if (this.containsHigh) {
+            List<Component> refreshedComponents = new LinkedList<>();
+            refreshedComponents.add(this.getComponents().get(0));
+            for (int i = 1; i < this.getComponents().size(); i++) {
+                if (this.getComponents().get(i) instanceof NumericalParentheses
+                        && (this.getComponents().get(i - 1) instanceof Number
+                        || this.getComponents().get(i + 1) instanceof Number)) {
+                    if (this.getComponents().get(i - 1) instanceof Number) {
+                        NumericalBinaryOperation operation = new NumericalBinaryOperation(Operator.MULTIPLICATION, (NumericalObject) this.getComponents().get(i), (NumericalObject) this.getComponents().get(i - 1));
+                        if (this.getComponents().get(i + 1) instanceof Number) {
+                            NumericalBinaryOperation operation2 = new NumericalBinaryOperation(Operator.MULTIPLICATION, operation, (NumericalObject) this.getComponents().get(i + 1));
+                            refreshedComponents.set(refreshedComponents.size() - 1, operation2);
+                            i += 2;
+                        } else {
+                            refreshedComponents.set(refreshedComponents.size() - 1, operation);
+                            i++;
+                        }
+                    } else {
+                        NumericalBinaryOperation operation = new NumericalBinaryOperation(Operator.MULTIPLICATION, (NumericalObject) this.getComponents().get(i), (NumericalObject) this.getComponents().get(i + 1));
+                        refreshedComponents.set(refreshedComponents.size() - 1, operation);
+                        i++;
+                    }
+                } else refreshedComponents.add(this.getComponents().get(i));
+            }
+            
+            this.components = sortAfterPriority(this.getComponents(), Priority.HIGH);
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH " + TextColor.PURPLE + "(\"(xx)\", \"x^x\")" + TextColor.RESET + ":");
+            this.printComponents();
+        }
 
-    private List<Component> sort(List<Component> list, Priority priority) {
+        if (this.containsAboveStandard) {
+            this.components = sortAfterPriority(this.getComponents(), Priority.ABOVE_STANDARD);
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD" + TextColor.PURPLE + "(\"*\", \"/\")" + TextColor.RESET + ":");
+            this.printComponents();
+        }
+
+        if (this.containsStandard) {
+            this.components = sortAfterPriority(this.getComponents(), Priority.STANDARD);
+            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD" + TextColor.PURPLE + "(\"-\", \"+\")" + TextColor.RESET + ":");
+            this.printComponents();
+        }
+
+        if (this.getComponents().size() > 1) throw new UnexpectedResultException("More components than expected!");
+        if (!(this.getComponents().get(0) instanceof NumericalObject)) throw new UnexpectedResultException("Final component isn't a numerical value!");
+    }
+
+    private List<Component> sortAfterPriority(List<Component> list, Priority priority) {
         if (list.size() == 1) return list;
         List<Component> refreshedComponents = new LinkedList<>();
         refreshedComponents.add(list.get(0));
@@ -142,8 +172,8 @@ public class Operation implements NumericalValue {
                 Operator operator = (Operator) list.get(i);
                 if (operator.getPriority() == priority) {
                     NumericalBinaryOperation operation = new NumericalBinaryOperation(operator,
-                            (NumericalValue) refreshedComponents.get(refreshedComponents.size() - 1),
-                            (NumericalValue) list.get(i + 1));
+                            (NumericalObject) refreshedComponents.get(refreshedComponents.size() - 1),
+                            (NumericalObject) list.get(i + 1));
                     refreshedComponents.set(refreshedComponents.size() - 1, operation);
                     i++;
                 } else refreshedComponents.add(operator);

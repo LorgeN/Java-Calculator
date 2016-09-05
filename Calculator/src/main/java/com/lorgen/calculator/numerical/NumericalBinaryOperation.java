@@ -4,14 +4,14 @@ import com.lorgen.calculator.components.Operator;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import lombok.Getter;
 
-public class NumericalBinaryOperation implements NumericalValue {
+public class NumericalBinaryOperation implements NumericalObject {
 
     @Getter private Operator operator;
-    @Getter private NumericalValue operand1;
-    @Getter private NumericalValue operand2;
+    @Getter private NumericalObject operand1;
+    @Getter private NumericalObject operand2;
     @Getter private ComponentType componentType = ComponentType.BINARY_OPERATION;
 
-    public NumericalBinaryOperation(Operator operator, NumericalValue value1, NumericalValue value2) {
+    public NumericalBinaryOperation(Operator operator, NumericalObject value1, NumericalObject value2) {
         this.operator = operator;
         this.operand1 = value1;
         this.operand2 = value2;

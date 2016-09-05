@@ -3,9 +3,8 @@ package com.lorgen.calculator.ui.commands;
 import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.numerical.Operation;
+import com.lorgen.calculator.evaluators.Operation;
 import com.lorgen.calculator.ui.Command;
-import com.lorgen.calculator.ui.ConsoleHandler;
 import com.lorgen.calculator.ui.TextColor;
 
 import java.util.Arrays;

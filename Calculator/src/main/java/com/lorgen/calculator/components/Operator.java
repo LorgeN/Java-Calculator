@@ -1,7 +1,7 @@
 package com.lorgen.calculator.components;
 
 import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.numerical.NumericalValue;
+import com.lorgen.calculator.numerical.NumericalObject;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -9,9 +9,9 @@ import java.util.Arrays;
 public enum Operator implements Component {
     ADDITION(Priority.STANDARD, '+') {
         @Override
-        public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalValue.fromDouble(operand1.getValue() + operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getValue() + operand2.getValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -20,9 +20,9 @@ public enum Operator implements Component {
     },
     SUBTRACTION(Priority.STANDARD, '-') {
         @Override
-        public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalValue.fromDouble(operand1.getValue() - operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getValue() - operand2.getValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -31,9 +31,9 @@ public enum Operator implements Component {
     },
     MULTIPLICATION(Priority.ABOVE_STANDARD, '*') {
         @Override
-        public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalValue.fromDouble(operand1.getValue() * operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getValue() * operand2.getValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -42,9 +42,9 @@ public enum Operator implements Component {
     },
     DIVISION(Priority.ABOVE_STANDARD, '/') {
         @Override
-        public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalValue.fromDouble(operand1.getValue() / operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getValue() / operand2.getValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -53,9 +53,9 @@ public enum Operator implements Component {
     },
     EXPONENT(Priority.HIGH, '^') {
         @Override
-        public NumericalValue calculate(NumericalValue operand1, NumericalValue operand2) {
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalValue.fromDouble(Math.pow(operand1.getValue(), operand2.getValue()));
+                return NumericalObject.fromDouble(Math.pow(operand1.getValue(), operand2.getValue()));
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -74,7 +74,7 @@ public enum Operator implements Component {
         this.rawString = ch + "";
     }
     
-    public abstract NumericalValue calculate(NumericalValue operand1, NumericalValue operand2);
+    public abstract NumericalObject calculate(NumericalObject operand1, NumericalObject operand2);
 
     public static boolean isOperator(char ch) {
         return Operator.fromCharacter(ch) != null;
@@ -82,5 +82,17 @@ public enum Operator implements Component {
 
     public static Operator fromCharacter(char ch) {
         return Arrays.stream(Operator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().orElse(null);
+    }
+
+    public enum Priority {
+        HIGH(2),
+        ABOVE_STANDARD(1),
+        STANDARD(0);
+
+        @Getter private int level;
+
+        Priority(int level) {
+            this.level = level;
+        }
     }
 }
