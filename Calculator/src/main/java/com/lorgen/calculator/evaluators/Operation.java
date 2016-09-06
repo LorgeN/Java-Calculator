@@ -4,6 +4,7 @@ import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.components.Component;
 import com.lorgen.calculator.components.Operator;
 import com.lorgen.calculator.components.Operator.Priority;
+import com.lorgen.calculator.components.TrigonometricFunction;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import com.lorgen.calculator.numerical.NumericalBinaryOperation;
@@ -12,107 +13,20 @@ import com.lorgen.calculator.numerical.NumericalParentheses;
 import com.lorgen.calculator.ui.TextColor;
 import lombok.Getter;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Operation implements NumericalObject {
     @Getter private String rawString;
     @Getter private List<Component> components;
 
-    private boolean containsHigh = false;
-    private boolean containsAboveStandard = false;
-    private boolean containsStandard = false;
-
     public Operation(String raw) throws EvaluationException {
-        //TODO: Identify negative numbers in parentheses and create componentalizer class
         this.rawString = raw;
-        Calculator.getConsole().info("New operation " + TextColor.LIGHT_PURPLE + "\"" + raw + "\":");
-
-        this.components = new LinkedList<>();
-        String leftToEval = raw;
-
-        try {
-            for (int i = 0; i < raw.length(); i++) {
-                char ch = raw.charAt(i);
-                if (ch == '(') {
-                    int index = leftToEval.indexOf(ch);
-                    if (index != 0) {
-                        this.components.add(NumericalObject.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
-                        this.components.add(Operator.MULTIPLICATION);
-                        this.containsAboveStandard = true;
-                    }
-
-                    Calculator.getConsole().info("Found opening parentheses.");
-                    int starting = i + 1, closing, parenthesesWithin = 0;
-                    identifyClosing: while (true) {
-                        i++;
-                        ch = raw.charAt(i);
-                        if (ch == '(') parenthesesWithin++;
-                        else if (ch == ')') {
-                            if (parenthesesWithin == 0) {
-                                closing = i;
-                                break identifyClosing;
-                            } else parenthesesWithin--;
-                        }
-                    }
-
-                    if (this.components.size() != 0) {
-                        if (this.components.get(this.components.size() - 1).equals(Operator.SUBTRACTION)) {
-                            this.components.set(this.components.size() - 1, NumericalObject.fromDouble(-1.0));
-                            this.components.add(Operator.MULTIPLICATION);
-                        }
-                    }
-
-                    this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
-
-                    if (i + 1 == raw.length()) {
-                        Calculator.getConsole().info("Completed evaluating operation.");
-                    } else {
-                        leftToEval = raw.substring(closing + 1);
-                        Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
-                        if (!Operator.isOperator(leftToEval.charAt(0))) {
-                            this.components.add(Operator.MULTIPLICATION);
-                            this.containsAboveStandard = true;
-                        }
-                    }
-                } else if (Operator.isOperator(ch)) {
-                    Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
-                    Operator operator = Operator.fromCharacter(ch);
-                    int index = leftToEval.indexOf(ch);
-                    if (index != 0) this.components.add(NumericalObject.fromDouble(Double.valueOf(leftToEval.substring(0, index))));
-                    this.components.add(operator);
-                    leftToEval = leftToEval.substring(index + 1);
-                    Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEval);
-
-                    switch (operator.getPriority()) {
-                        case HIGH:
-                            this.containsHigh = true;
-                            break;
-                        case ABOVE_STANDARD:
-                            this.containsAboveStandard = true;
-                            break;
-                        case STANDARD:
-                            this.containsStandard = true;
-                            break;
-                    }
-                } else if (i + 1 == raw.length()) {
-                    double prev = Double.valueOf(leftToEval);
-                    this.components.add(NumericalObject.fromDouble(prev));
-                    Calculator.getConsole().info("Completed evaluating operation.");
-                }
-            }
-
-            Calculator.getConsole().info("Components in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + ":");
-            this.printComponents();
-            Calculator.getConsole().info("Evaluated string: " + TextColor.LIGHT_PURPLE + this.getEvaluatedString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new EvaluationException("Unable to evaluate operation " + this.getRawString());
-        }
+        this.components = Calculator.getEvaluator().evaluate(raw);
     }
     
     public Operation(List<Component> components) {
         this.components = components;
+        this.rawString = getEvaluatedString();
     }
 
     @Override
@@ -132,20 +46,37 @@ public class Operation implements NumericalObject {
     }
     
     private void prioritize() throws UnexpectedResultException {
-        if (this.containsHigh) {
-            this.components = sortAfterPriority(this.getComponents(), Priority.HIGH);
+        Set<Priority> contains = new HashSet<>();
+        this.getComponents().parallelStream().filter(component -> component instanceof Operator).forEach(component -> contains.add(((Operator) component).getPriority()));
+
+        List<Component> refreshedComponents = new LinkedList<>();
+        refreshedComponents.add(this.components.get(0));
+        for (int i = 1; i < this.components.size() - 1; i++) {
+            if (this.components.get(i) instanceof TrigonometricFunction) {
+                TrigonometricFunction function = (TrigonometricFunction) this.components.get(i);
+                Calculator.getConsole().info("Found trigonometric function " + TextColor.LIGHT_PURPLE + function.name() + TextColor .RESET + ".");
+                if (!(this.components.get(i + 1) instanceof NumericalObject)) throw new UnexpectedResultException("Trigonometric functions have to be followed by a numerical object!");
+                refreshedComponents.add(NumericalObject.fromDouble(function.calculate((NumericalObject) this.components.get(i + 1))));
+                i++;
+            } else refreshedComponents.add(this.components.get(i));
+        }
+        refreshedComponents.add(this.components.get(this.components.size() - 1));
+        this.components = refreshedComponents;
+
+        if (contains.contains(Priority.HIGH)) {
+            this.components = assembleAfterPriority(this.getComponents(), Priority.HIGH);
             Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGH " + TextColor.PURPLE + "(\"(--)\", \"x^y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
 
-        if (this.containsAboveStandard) {
-            this.components = sortAfterPriority(this.getComponents(), Priority.ABOVE_STANDARD);
+        if (contains.contains(Priority.ABOVE_STANDARD)) {
+            this.components = assembleAfterPriority(this.getComponents(), Priority.ABOVE_STANDARD);
             Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "ABOVE_STANDARD " + TextColor.PURPLE + "(\"x*y\", \"x/y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
 
-        if (this.containsStandard) {
-            this.components = sortAfterPriority(this.getComponents(), Priority.STANDARD);
+        if (contains.contains(Priority.STANDARD)) {
+            this.components = assembleAfterPriority(this.getComponents(), Priority.STANDARD);
             Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD " + TextColor.PURPLE + "(\"x-y\", \"x+y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getRawString() + TextColor.RESET + ":");
             this.printComponents();
         }
@@ -154,7 +85,7 @@ public class Operation implements NumericalObject {
         if (!(this.getComponents().get(0) instanceof NumericalObject)) throw new UnexpectedResultException("Final component isn't a numerical value!");
     }
 
-    private List<Component> sortAfterPriority(List<Component> list, Priority priority) {
+    private List<Component> assembleAfterPriority(List<Component> list, Priority priority) {
         if (list.size() == 1) return list;
         List<Component> refreshedComponents = new LinkedList<>();
         refreshedComponents.add(list.get(0));

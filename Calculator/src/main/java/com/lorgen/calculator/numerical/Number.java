@@ -23,7 +23,12 @@ public class Number implements NumericalObject {
 
     public boolean isPrime() {
         if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
-        return NumberUtils.isPrime((int) this.getValue());
+        return NumberUtils.isPrime((long) this.getValue());
+    }
+
+    public Long[] factorize() {
+        if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
+        return NumberUtils.factorize((long) this.getValue());
     }
 
     public ComponentType getComponentType() {

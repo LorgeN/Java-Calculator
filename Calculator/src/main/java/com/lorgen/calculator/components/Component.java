@@ -8,6 +8,7 @@ public interface Component {
         OPERATOR,
         VALUE_NUMERICAL,
         BINARY_OPERATION,
+        TRIGONOMETRIC_FUNCTION,
         NUMBER,
         VARIABLE,
         UNKNOWN
