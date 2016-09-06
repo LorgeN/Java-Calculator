@@ -25,4 +25,8 @@ public class Number implements NumericalObject {
         if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
         return NumberUtils.isPrime((int) this.getValue());
     }
+
+    public ComponentType getComponentType() {
+        return ComponentType.NUMBER;
+    }
 }

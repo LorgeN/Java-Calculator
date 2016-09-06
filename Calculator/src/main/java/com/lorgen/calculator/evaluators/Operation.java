@@ -24,6 +24,7 @@ public class Operation implements NumericalObject {
     private boolean containsStandard = false;
 
     public Operation(String raw) throws EvaluationException {
+        //TODO: Identify negative numbers in parentheses and create componentalizer class
         this.rawString = raw;
         Calculator.getConsole().info("New operation " + TextColor.LIGHT_PURPLE + "\"" + raw + "\":");
 
@@ -55,9 +56,11 @@ public class Operation implements NumericalObject {
                         }
                     }
 
-                    if (this.components.get(this.components.size() - 1).equals(Operator.SUBTRACTION)) {
-                        this.components.set(this.components.size() - 1, NumericalObject.fromDouble(-1.0));
-                        this.components.add(Operator.MULTIPLICATION);
+                    if (this.components.size() != 0) {
+                        if (this.components.get(this.components.size() - 1).equals(Operator.SUBTRACTION)) {
+                            this.components.set(this.components.size() - 1, NumericalObject.fromDouble(-1.0));
+                            this.components.add(Operator.MULTIPLICATION);
+                        }
                     }
 
                     this.components.add(new NumericalParentheses(raw.substring(starting, closing)));
@@ -167,6 +170,7 @@ public class Operation implements NumericalObject {
                 } else refreshedComponents.add(operator);
             } else refreshedComponents.add(list.get(i));
         }
+        refreshedComponents.add(list.get(list.size() - 1));
         return refreshedComponents;
     }
 }
