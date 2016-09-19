@@ -6,7 +6,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-public enum Operator implements Component {
+public enum BinaryOperator implements Component {
     ADDITION(Priority.STANDARD, '+') {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
@@ -68,7 +68,7 @@ public enum Operator implements Component {
     @Getter private ComponentType componentType = ComponentType.OPERATOR;
     @Getter private String rawString;
 
-    Operator(Priority priority, char ch) {
+    BinaryOperator(Priority priority, char ch) {
         this.character = ch;
         this.priority = priority;
         this.rawString = ch + "";
@@ -77,11 +77,11 @@ public enum Operator implements Component {
     public abstract NumericalObject calculate(NumericalObject operand1, NumericalObject operand2);
 
     public static boolean isOperator(char ch) {
-        return Operator.fromCharacter(ch) != null;
+        return BinaryOperator.fromCharacter(ch) != null;
     }
 
-    public static Operator fromCharacter(char ch) {
-        return Arrays.stream(Operator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().orElse(null);
+    public static BinaryOperator fromCharacter(char ch) {
+        return Arrays.stream(BinaryOperator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().orElse(null);
     }
 
     public enum Priority {

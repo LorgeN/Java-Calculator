@@ -6,7 +6,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-public enum TrigonometricFunction implements Component {
+public enum PredefinedFunction implements Component {
     SINE("sin") {
         @Override
         public double calculate(NumericalObject object) {
@@ -43,18 +43,18 @@ public enum TrigonometricFunction implements Component {
 
     @Getter private String string;
 
-    TrigonometricFunction(String str) {
+    PredefinedFunction(String str) {
         this.string = str;
     }
 
     public abstract double calculate(NumericalObject object);
 
     public static boolean isFunction(String str) {
-        return TrigonometricFunction.fromString(str) != null;
+        return PredefinedFunction.fromString(str) != null;
     }
 
-    public static TrigonometricFunction fromString(String str) {
-        return Arrays.stream(TrigonometricFunction.values()).filter(operator -> operator.getString() == str).findFirst().orElse(null);
+    public static PredefinedFunction fromString(String str) {
+        return Arrays.stream(PredefinedFunction.values()).filter(operator -> operator.getString() == str).findFirst().orElse(null);
     }
 
     @Override

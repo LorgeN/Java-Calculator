@@ -4,6 +4,7 @@ import com.lorgen.calculator.components.Component;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 
 public interface NumericalObject extends Component {
+    //TODO: Convert to value object?
     double getValue() throws UnexpectedResultException;
 
     default ComponentType getComponentType() {

@@ -1,15 +1,14 @@
 package com.lorgen.calculator.evaluators;
 
 import com.lorgen.calculator.Calculator;
+import com.lorgen.calculator.components.BinaryOperator;
 import com.lorgen.calculator.components.Component;
-import com.lorgen.calculator.components.Operator;
-import com.lorgen.calculator.components.Operator.Priority;
-import com.lorgen.calculator.components.TrigonometricFunction;
+import com.lorgen.calculator.components.BinaryOperator.Priority;
+import com.lorgen.calculator.components.PredefinedFunction;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
 import com.lorgen.calculator.numerical.NumericalBinaryOperation;
 import com.lorgen.calculator.numerical.NumericalObject;
-import com.lorgen.calculator.numerical.NumericalParentheses;
 import com.lorgen.calculator.ui.TextColor;
 import lombok.Getter;
 
@@ -47,13 +46,13 @@ public class Operation implements NumericalObject {
     
     private void prioritize() throws UnexpectedResultException {
         Set<Priority> contains = new HashSet<>();
-        this.getComponents().parallelStream().filter(component -> component instanceof Operator).forEach(component -> contains.add(((Operator) component).getPriority()));
+        this.getComponents().parallelStream().filter(component -> component instanceof BinaryOperator).forEach(component -> contains.add(((BinaryOperator) component).getPriority()));
 
         List<Component> refreshedComponents = new LinkedList<>();
         refreshedComponents.add(this.components.get(0));
         for (int i = 1; i < this.components.size() - 1; i++) {
-            if (this.components.get(i) instanceof TrigonometricFunction) {
-                TrigonometricFunction function = (TrigonometricFunction) this.components.get(i);
+            if (this.components.get(i) instanceof PredefinedFunction) {
+                PredefinedFunction function = (PredefinedFunction) this.components.get(i);
                 Calculator.getConsole().info("Found trigonometric function " + TextColor.LIGHT_PURPLE + function.name() + TextColor .RESET + ".");
                 if (!(this.components.get(i + 1) instanceof NumericalObject)) throw new UnexpectedResultException("Trigonometric functions have to be followed by a numerical object!");
                 refreshedComponents.add(NumericalObject.fromDouble(function.calculate((NumericalObject) this.components.get(i + 1))));
@@ -90,8 +89,8 @@ public class Operation implements NumericalObject {
         List<Component> refreshedComponents = new LinkedList<>();
         refreshedComponents.add(list.get(0));
         for (int i = 1; i < list.size() - 1; i++) {
-            if (list.get(i) instanceof Operator && list.get(i - 1) instanceof NumericalObject && list.get(i + 1) instanceof NumericalObject) {
-                Operator operator = (Operator) list.get(i);
+            if (list.get(i) instanceof BinaryOperator && list.get(i - 1) instanceof NumericalObject && list.get(i + 1) instanceof NumericalObject) {
+                BinaryOperator operator = (BinaryOperator) list.get(i);
                 if (operator.getPriority() == priority) {
                     NumericalBinaryOperation operation = new NumericalBinaryOperation(operator,
                             (NumericalObject) refreshedComponents.get(refreshedComponents.size() - 1),

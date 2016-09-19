@@ -2,8 +2,8 @@ package com.lorgen.calculator.evaluators;
 
 import com.lorgen.calculator.Calculator;
 import com.lorgen.calculator.components.Component;
-import com.lorgen.calculator.components.Operator;
-import com.lorgen.calculator.components.TrigonometricFunction;
+import com.lorgen.calculator.components.BinaryOperator;
+import com.lorgen.calculator.components.PredefinedFunction;
 import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.numerical.NumericalObject;
 import com.lorgen.calculator.numerical.NumericalParentheses;
@@ -46,15 +46,19 @@ public class Evaluator {
                     } else {
                         leftToEvaluate = string.substring(closing + 1);
                         Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEvaluate);
-                        if (!Operator.isOperator(leftToEvaluate.charAt(0))) components.add(Operator.MULTIPLICATION);
+                        if (!BinaryOperator.isOperator(leftToEvaluate.charAt(0))) components.add(BinaryOperator.MULTIPLICATION);
                     }
-                } else if (Operator.isOperator(ch)) {
-                    Calculator.getConsole().info("Operator found: " + TextColor.LIGHT_PURPLE + ch);
+                } else if (BinaryOperator.isOperator(ch)) {
+                    Calculator.getConsole().info("BinaryOperator found: " + TextColor.LIGHT_PURPLE + ch);
 
                     Optional<Component> check = this.getPreviousComponent(leftToEvaluate, ch);
                     if (check.isPresent()) components.add(check.get());
-                    Operator operator = Operator.fromCharacter(ch);
-                    components.add(operator);
+                    BinaryOperator operator = BinaryOperator.fromCharacter(ch);
+
+                    if (operator == BinaryOperator.SUBTRACTION && BinaryOperator.isOperator(string.charAt(i - 1))) {
+                        components.add(NumericalObject.fromDouble(-1.0));
+                        components.add(BinaryOperator.MULTIPLICATION);
+                    } else components.add(operator);
 
                     leftToEvaluate = leftToEvaluate.substring(leftToEvaluate.indexOf(ch) + 1);
                     Calculator.getConsole().info("Left to evaluate: " + TextColor.LIGHT_PURPLE + leftToEvaluate);
@@ -85,8 +89,8 @@ public class Evaluator {
 
     private Optional<Component> getComponent(String string) throws EvaluationException {
         try {
-            if (string.length() == 1 && Operator.isOperator(string.charAt(0))) return Optional.of(Operator.fromCharacter(string.charAt(0)));
-            else if (string.length() == 3 && TrigonometricFunction.isFunction(string)) return Optional.of(TrigonometricFunction.fromString(string));
+            if (string.length() == 1 && BinaryOperator.isOperator(string.charAt(0))) return Optional.of(BinaryOperator.fromCharacter(string.charAt(0)));
+            else if (string.length() == 3 && PredefinedFunction.isFunction(string)) return Optional.of(PredefinedFunction.fromString(string));
             else return Optional.of(NumericalObject.fromDouble(Double.valueOf(string)));
         } catch (Exception e) {
             throw new EvaluationException(e);
