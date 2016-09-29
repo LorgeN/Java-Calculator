@@ -2,6 +2,8 @@ package com.lorgen.calculator.ui;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 public abstract class Command {
     @Getter private String name;
     @Getter private String info;
@@ -14,4 +16,10 @@ public abstract class Command {
     }
 
     public abstract void execute(String[] args);
+
+    public String toString(String[] args) {
+        StringBuilder builder = new StringBuilder();
+        Arrays.stream(args).forEach(str -> builder.append(" " + str));
+        return builder.toString().trim();
+    }
 }

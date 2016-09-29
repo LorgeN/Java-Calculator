@@ -6,12 +6,12 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-public enum Operator implements Component {
+public enum Operator implements MathematicalObject, Delimiter {
     ADDITION(Priority.STANDARD, '+') {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalObject.fromDouble(operand1.getValue() + operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getPrimitiveValue() + operand2.getPrimitiveValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -22,40 +22,40 @@ public enum Operator implements Component {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalObject.fromDouble(operand1.getValue() - operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getPrimitiveValue() - operand2.getPrimitiveValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
             }
         }
     },
-    MULTIPLICATION(Priority.ABOVE_STANDARD, '*') {
+    MULTIPLICATION(Priority.HIGHER, '*') {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalObject.fromDouble(operand1.getValue() * operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getPrimitiveValue() * operand2.getPrimitiveValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
             }
         }
     },
-    DIVISION(Priority.ABOVE_STANDARD, '/') {
+    DIVISION(Priority.HIGHER, '/') {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalObject.fromDouble(operand1.getValue() / operand2.getValue());
+                return NumericalObject.fromDouble(operand1.getPrimitiveValue() / operand2.getPrimitiveValue());
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
             }
         }
     },
-    EXPONENT(Priority.HIGH, '^') {
+    EXPONENT(Priority.HIGHEST, '^') {
         @Override
         public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
             try {
-                return NumericalObject.fromDouble(Math.pow(operand1.getValue(), operand2.getValue()));
+                return NumericalObject.fromDouble(Math.pow(operand1.getPrimitiveValue(), operand2.getPrimitiveValue()));
             } catch (UnexpectedResultException e) {
                 e.printStackTrace();
                 return null;
@@ -65,34 +65,25 @@ public enum Operator implements Component {
 
     @Getter private char character;
     @Getter private Priority priority;
-    @Getter private ComponentType componentType = ComponentType.OPERATOR;
-    @Getter private String rawString;
+    @Getter private String string;
 
     Operator(Priority priority, char ch) {
         this.character = ch;
         this.priority = priority;
-        this.rawString = ch + "";
+        this.string = ch + "";
     }
     
     public abstract NumericalObject calculate(NumericalObject operand1, NumericalObject operand2);
 
+    public String getSymbol() {
+        return this.getCharacter() + "";
+    }
+
     public static boolean isOperator(char ch) {
-        return Operator.fromCharacter(ch) != null;
+        return Arrays.stream(Operator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().isPresent();
     }
 
     public static Operator fromCharacter(char ch) {
         return Arrays.stream(Operator.values()).filter(operator -> operator.getCharacter() == ch).findFirst().orElse(null);
-    }
-
-    public enum Priority {
-        HIGH(2),
-        ABOVE_STANDARD(1),
-        STANDARD(0);
-
-        @Getter private int level;
-
-        Priority(int level) {
-            this.level = level;
-        }
     }
 }

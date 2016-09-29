@@ -1,9 +1,7 @@
 package com.lorgen.calculator.ui.commands;
 
 import com.lorgen.calculator.Calculator;
-import com.lorgen.calculator.exception.EvaluationException;
 import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.evaluators.Operation;
 import com.lorgen.calculator.ui.Command;
 import com.lorgen.calculator.ui.TextColor;
 
@@ -24,24 +22,9 @@ public class CalculateCommand extends Command {
             Arrays.stream(args).forEach(s -> builder.append(s));
             String string = builder.toString().trim();
             Calculator.getConsole().info("Initiating evaluation process for " + TextColor.LIGHT_PURPLE + string + TextColor.RESET + ":");
-            Operation operation;
 
-            try {
-                operation = new Operation(string);
-            } catch (EvaluationException e) {
-                Calculator.getConsole().err(e.getMessage());
-                return;
-            }
-
-            Calculator.getConsole().info("Initiating calculation...");
-
-            try {
-                double value = operation.getValue();
-                Calculator.getConsole().info("Final evaluation: " + TextColor.LIGHT_PURPLE + operation.getEvaluatedString());
-                Calculator.getConsole().info(TextColor.RED + string + TextColor.PURPLE + " = " + TextColor.RED + value);
-            } catch (UnexpectedResultException e) {
-                e.printStackTrace();
-            }
+            double value = Calculator.getEvaluator().getValue(string).getPrimitiveValue();
+            Calculator.getConsole().info(TextColor.RED + string + TextColor.PURPLE + " = " + TextColor.RED + value);
         }
     }
 }

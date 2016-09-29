@@ -9,7 +9,7 @@ public class NumericalParentheses extends Operation {
         super(raw);
     }
 
-    public String getRawString() {
-        return "(" + super.getRawString() + ")";
+    public String getString() {
+        return "(" + super.getString() + ")";
     }
 }

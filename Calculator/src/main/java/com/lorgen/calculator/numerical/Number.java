@@ -4,34 +4,34 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class Number implements NumericalObject {
+public class Number {
 
-    @Getter private double value;
+    @Getter private double primitiveValue;
+
+    public String getString() {
+        return this.getPrimitiveValue() + "";
+    }
 
     @Override
-    public String getRawString() {
-        return this.getValue() + "";
+    public String toString() {
+        return this.getString();
     }
 
     public boolean isInteger() {
-        return NumberUtils.isInteger(this.getValue());
+        return NumberUtils.isInteger(this.getPrimitiveValue());
     }
 
     public boolean isNatural() {
-        return NumberUtils.isNatural(this.getValue());
+        return NumberUtils.isNatural(this.getPrimitiveValue());
     }
 
     public boolean isPrime() {
         if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
-        return NumberUtils.isPrime((long) this.getValue());
+        return NumberUtils.isPrime((long) this.getPrimitiveValue());
     }
 
     public Long[] factorize() {
         if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
-        return NumberUtils.factorize((long) this.getValue());
-    }
-
-    public ComponentType getComponentType() {
-        return ComponentType.NUMBER;
+        return NumberUtils.factorize((long) this.getPrimitiveValue());
     }
 }

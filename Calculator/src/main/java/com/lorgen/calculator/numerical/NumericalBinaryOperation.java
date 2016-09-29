@@ -9,7 +9,6 @@ public class NumericalBinaryOperation implements NumericalObject {
     @Getter private Operator operator;
     @Getter private NumericalObject operand1;
     @Getter private NumericalObject operand2;
-    @Getter private ComponentType componentType = ComponentType.BINARY_OPERATION;
 
     public NumericalBinaryOperation(Operator operator, NumericalObject value1, NumericalObject value2) {
         this.operator = operator;
@@ -18,9 +17,9 @@ public class NumericalBinaryOperation implements NumericalObject {
     }
 
     @Override
-    public double getValue() {
+    public double getPrimitiveValue() {
         try {
-            return this.getOperator().calculate(this.getOperand1(), this.getOperand2()).getValue();
+            return this.getOperator().calculate(this.getOperand1(), this.getOperand2()).getPrimitiveValue();
         } catch (UnexpectedResultException e) {
             e.printStackTrace();
             return 0;
@@ -28,7 +27,7 @@ public class NumericalBinaryOperation implements NumericalObject {
     }
 
     @Override
-    public String getRawString() {
-        return "(" + operand1.getRawString() + " " + operator.getRawString() + " " + operand2.getRawString() + ")";
+    public String getString() {
+        return "(" + operand1.getString() + " " + operator.getString() + " " + operand2.getString() + ")";
     }
 }
