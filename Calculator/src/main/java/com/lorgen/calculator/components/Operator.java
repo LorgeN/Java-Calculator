@@ -61,6 +61,17 @@ public enum Operator implements MathematicalObject, Delimiter {
                 return null;
             }
         }
+    },
+    MODULO(Priority.HIGHEST, '%') {
+        @Override
+        public NumericalObject calculate(NumericalObject operand1, NumericalObject operand2) {
+            try {
+                return NumericalObject.fromDouble(operand1.getPrimitiveValue() % operand2.getPrimitiveValue());
+            } catch (UnexpectedResultException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     };
 
     @Getter private char character;

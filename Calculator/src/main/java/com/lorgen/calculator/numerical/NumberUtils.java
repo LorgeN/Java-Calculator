@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class NumberUtils {
+    //TODO: Add timeout to prime related tasks
+
     public static boolean isPrime(long number) {
         if ((number != 2 && number % 2 == 0) || number <= 1) return false;
         for (int i = 3; i * i <= number; i += 2) if (number % i == 0) return false;
