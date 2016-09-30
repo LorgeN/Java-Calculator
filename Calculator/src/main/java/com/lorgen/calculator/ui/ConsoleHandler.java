@@ -1,6 +1,8 @@
 package com.lorgen.calculator.ui;
 
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Arrays;
 
 import com.lorgen.calculator.Calculator;
 import jline.console.ConsoleReader;
@@ -24,6 +26,10 @@ public class ConsoleHandler {
                 }
             });
 
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                e.printStackTrace();
+                this.err("An error occured!");
+            });
             thread.setName("Console input thread");
             thread.start();
         } catch (IOException e) {
@@ -31,19 +37,41 @@ public class ConsoleHandler {
         }
     }
 
-    public void info(String text) {
+    public void info(String... text) {
+        Arrays.stream(text).forEach(this::info);
+    }
+
+    public void err(String... text) {
+        Arrays.stream(text).forEach(this::err);
+    }
+
+    public void warn(String... text) {
+        Arrays.stream(text).forEach(this::warn);
+    }
+
+    public void result(String... text) {
+        Arrays.stream(text).forEach(this::result);
+    }
+
+    /* Internal */
+
+    private void info(String text) {
         this.println(TextColor.GREEN + "[INFO] " + TextColor.RESET + text + TextColor.RESET);
     }
 
-    public void err(String text) {
+    private void err(String text) {
         this.println(TextColor.RED + "[ERROR] " + TextColor.RESET + text + TextColor.RESET);
     }
 
-    public void warn(String text) {
+    private void warn(String text) {
         this.println(TextColor.PURPLE + "[WARNING] " + TextColor.RESET + text + TextColor.RESET);
     }
 
-    public void println(String str) {
+    private void result(String text) {
+        this.println(TextColor.YELLOW + "[RESULT] " + TextColor.RESET + text  + TextColor.RESET);
+    }
+
+    private void println(String str) {
         try {
             this.reader.println(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE + str + TextColor.RESET);
             this.reader.drawLine();

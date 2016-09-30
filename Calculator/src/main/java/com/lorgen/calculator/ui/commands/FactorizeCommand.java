@@ -1,10 +1,7 @@
 package com.lorgen.calculator.ui.commands;
 
 import com.lorgen.calculator.Calculator;
-import com.lorgen.calculator.exception.EvaluationException;
-import com.lorgen.calculator.numerical.Number;
-import com.lorgen.calculator.numerical.NumberUtils;
-import com.lorgen.calculator.numerical.NumericalObject;
+import com.lorgen.calculator.numbers.Number;
 import com.lorgen.calculator.ui.Command;
 import com.lorgen.calculator.ui.TextColor;
 
@@ -26,6 +23,6 @@ public class FactorizeCommand extends Command {
             Long[] factors = number.factorize();
             for (long l : factors) builder.append(" * " + l);
             String str = builder.toString().substring(3);
-            Calculator.getConsole().info("Factorized using primes: " + TextColor.RED + number + " = " + str);
+            Calculator.getConsole().result("Factorized using primes: " + TextColor.RED + number + " = " + str);
     }
 }

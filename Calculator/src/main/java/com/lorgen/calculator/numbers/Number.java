@@ -1,15 +1,29 @@
-package com.lorgen.calculator.numerical;
+package com.lorgen.calculator.numbers;
 
+import com.lorgen.calculator.objects.NumericalObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class Number {
+public class Number implements NumericalObject {
 
     @Getter private double primitiveValue;
 
+    @Deprecated
+    public Number getValue() {
+        return this;
+    }
+
     public String getString() {
         return this.getPrimitiveValue() + "";
+    }
+
+    public long longValue() {
+        return Math.round(this.getPrimitiveValue());
+    }
+
+    public int intValue() {
+        return (int) longValue();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.lorgen.calculator.components;
+package com.lorgen.calculator.objects;
 
 import lombok.Getter;
 

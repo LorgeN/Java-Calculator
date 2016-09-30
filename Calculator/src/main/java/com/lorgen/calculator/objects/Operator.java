@@ -1,7 +1,7 @@
-package com.lorgen.calculator.components;
+package com.lorgen.calculator.objects;
 
-import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.numerical.NumericalObject;
+import com.lorgen.calculator.objects.Delimiters.Delimiter;
+import com.lorgen.calculator.exceptions.UnexpectedResultException;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -87,7 +87,7 @@ public enum Operator implements MathematicalObject, Delimiter {
     public abstract NumericalObject calculate(NumericalObject operand1, NumericalObject operand2);
 
     public String getRegex() {
-        return this.getCharacter() + "";
+        return "\\" + this.getCharacter() + "";
     }
 
     public static boolean isOperator(char ch) {

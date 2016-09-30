@@ -1,13 +1,14 @@
-package com.lorgen.calculator.components;
+package com.lorgen.calculator.objects;
 
-import com.lorgen.calculator.exception.UnexpectedResultException;
-import com.lorgen.calculator.numerical.NumericalObject;
+import com.lorgen.calculator.objects.Delimiters.Delimiter;
+import com.lorgen.calculator.exceptions.UnexpectedResultException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Objects;
 
+@DefaultMultiply
 @AllArgsConstructor
 public enum MathematicalFunction implements MathematicalObject, Delimiter {
     SINE("sin") {

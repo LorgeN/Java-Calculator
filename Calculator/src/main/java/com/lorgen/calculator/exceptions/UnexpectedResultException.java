@@ -1,4 +1,4 @@
-package com.lorgen.calculator.exception;
+package com.lorgen.calculator.exceptions;
 
 public class UnexpectedResultException extends Exception {
 

@@ -1,4 +1,4 @@
-package com.lorgen.calculator.numerical;
+package com.lorgen.calculator.numbers;
 
 import java.util.LinkedList;
 import java.util.List;
