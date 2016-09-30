@@ -9,6 +9,8 @@ import com.lorgen.calculator.numerical.Number;
 import com.lorgen.calculator.numerical.NumericalObject;
 import com.lorgen.calculator.numerical.NumericalParentheses;
 import com.lorgen.calculator.ui.TextColor;
+import org.apache.commons.collections4.OrderedMapIterator;
+import org.apache.commons.collections4.map.LinkedMap;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,31 +21,29 @@ public class Evaluator {
     public List<MathematicalObject> evaluate2(String string) throws EvaluationException {
         Calculator.getConsole().info("Evaluating string " + TextColor.LIGHT_PURPLE + "\"" + string + "\":");
         Matcher matcher = Calculator.getComponentManager().getPattern().matcher(string);
-        Calculator.getConsole().info("Compiled matcher based on pattern " + Calculator.getComponentManager().getPattern().pattern());
-        LinkedList<String> matches = new LinkedList<>();
-        while (matcher.find()) matches.add(matcher.group());
-
-        LinkedList<MathematicalObject> components = new LinkedList<>();
-
-        String leftToEvaluate = string;
-        for (int i = 0; i < matches.size(); i++) {
-            String match = matches.get(i);
-            int index = leftToEvaluate.indexOf(match);
-            if (index == 0) continue;
-            if (match.equals("(")) {
-                // TODO: Identify amount of opening parentheses within (Similar to #evaluate), and find closing for this one. Add exception if opening and closing parentheses are not the same?
+        Calculator.getConsole().info("Compiled matcher based on pattern \"" + Calculator.getComponentManager().getPattern().pattern() + "\".");
+        LinkedMap<Integer, Integer> objectIndexes = new LinkedMap<>();
+        while (matcher.find()) {
+            if (objectIndexes.size() != 0) {
+                int lastValue = objectIndexes.get(objectIndexes.lastKey());
+                if (lastValue != matcher.start()) objectIndexes.put(lastValue, matcher.start());
             }
-
-            Optional<MathematicalObject> previousOptional = this.getComponent(leftToEvaluate.substring(0, leftToEvaluate.indexOf(match)));
-            if (previousOptional.isPresent()) components.add(previousOptional.get());
-            else throw new EvaluationException("Previous string " + leftToEvaluate.substring(0, leftToEvaluate.indexOf(match)) + " was not a mathematical object!");
-            Optional<MathematicalObject> matchOptional = this.getComponent(match);
-            if (matchOptional.isPresent()) components.add(matchOptional.get());
-            else throw new EvaluationException("Matched string " + leftToEvaluate.substring(0, leftToEvaluate.indexOf(match)) + " was not a mathematical object!");
-            leftToEvaluate = leftToEvaluate.substring(leftToEvaluate.indexOf(match) + match.length());
+            objectIndexes.put(matcher.start(), matcher.end());
         }
 
-        return null;
+        LinkedList<MathematicalObject> components = new LinkedList<>();
+        for (OrderedMapIterator<Integer, Integer> iterator = objectIndexes.mapIterator(); iterator.hasNext(); iterator.next()) {
+            String found = string.substring(iterator.getKey(), iterator.getValue());
+            if (found.equals("(")) {
+
+            } else {
+                Optional<MathematicalObject> mathematicalObjectOptional = this.getComponent(found);
+                if (mathematicalObjectOptional.isPresent()) components.add(mathematicalObjectOptional.get());
+                else throw new EvaluationException("Matcher found string \"" + found + "\" that was not a mathematical object!");
+            }
+        }
+
+        return components;
     }
 
     public Number getValue(String string) {

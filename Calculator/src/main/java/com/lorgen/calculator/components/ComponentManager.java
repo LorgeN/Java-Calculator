@@ -14,8 +14,8 @@ public class ComponentManager {
     public ComponentManager() {
         this.delimiters = new ArrayList<>();
 
-        Arrays.stream(MathematicalFunction.values()).forEach(function -> this.delimiters.add(function.getSymbol()));
-        Arrays.stream(Operator.values()).forEach(operator -> this.delimiters.add(operator.getSymbol()));
+        Arrays.stream(MathematicalFunction.values()).forEach(function -> this.delimiters.add(function.getRegex()));
+        Arrays.stream(Operator.values()).forEach(operator -> this.delimiters.add(operator.getRegex()));
         this.delimiters.add("(");
         this.delimiters.add(")");
 

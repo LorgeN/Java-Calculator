@@ -75,7 +75,7 @@ public enum Operator implements MathematicalObject, Delimiter {
     
     public abstract NumericalObject calculate(NumericalObject operand1, NumericalObject operand2);
 
-    public String getSymbol() {
+    public String getRegex() {
         return this.getCharacter() + "";
     }
 

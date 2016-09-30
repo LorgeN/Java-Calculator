@@ -104,7 +104,7 @@ public enum MathematicalFunction implements MathematicalObject, Delimiter {
     public abstract double calculate(NumericalObject object);
 
     @Override
-    public String getSymbol() {
+    public String getRegex() {
         return this.getString();
     }
 
