@@ -1,6 +1,9 @@
 package com.lorgen.calculator.ui.commands;
 
 import com.lorgen.calculator.Calculator;
+import com.lorgen.calculator.exceptions.EvaluationException;
+import com.lorgen.calculator.exceptions.UnexpectedResultException;
+import com.lorgen.calculator.operations.Operation;
 import com.lorgen.calculator.ui.Command;
 import com.lorgen.calculator.ui.TextColor;
 
@@ -13,7 +16,7 @@ public class CalculateCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void executeInternal(String[] args) {
         if (args.length == 0) {
             Calculator.getConsole().err("Please input an argument!");
         } else {
@@ -21,8 +24,13 @@ public class CalculateCommand extends Command {
             Arrays.stream(args).forEach(s -> builder.append(s));
             String string = builder.toString().trim();
             Calculator.getConsole().info("Initiating evaluation process for " + TextColor.LIGHT_PURPLE + string + TextColor.RESET + ":");
-            double value = Calculator.getEvaluator().getValue(string).getPrimitiveValue();
-            Calculator.getConsole().result(TextColor.RED + string + TextColor.PURPLE + " = " + TextColor.RED + value);
+            try {
+                Operation operation = Operation.of(Calculator.getEvaluator().evaluate(string));
+                double value = operation.getPrimitiveValue();
+                Calculator.getConsole().result(TextColor.RED + operation.getString() + TextColor.PURPLE + " = " + TextColor.RED + value);
+            } catch (EvaluationException | UnexpectedResultException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

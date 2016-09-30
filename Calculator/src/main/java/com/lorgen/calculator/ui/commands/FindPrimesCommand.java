@@ -14,7 +14,7 @@ public class FindPrimesCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void executeInternal(String[] args) {
         if (args.length == 0) Calculator.getConsole().err("Please input a number/operation!");
         else if (args.length == 1) {
             Long number = Calculator.getEvaluator().getValue(args[0]).longValue();

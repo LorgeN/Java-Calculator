@@ -1,5 +1,7 @@
 package com.lorgen.calculator.numbers;
 
+import com.lorgen.calculator.Calculator;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,6 +49,12 @@ public class NumberUtils {
         long left = number;
 
         while (left != 1) {
+            if (NumberUtils.isPrime(left)) {
+                factors.add(left);
+                left = 1;
+                continue;
+            }
+
             for (Long prime : NumberUtils.findPrimes((long) Math.sqrt(left))) {
                 if (NumberUtils.isInteger((double) left / (double) prime)) {
                     factors.add(prime);

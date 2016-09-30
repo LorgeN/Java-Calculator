@@ -14,7 +14,7 @@ public class CommandManager {
         this.commands = new ArrayList<>();
         this.registerCommand(new Command("help", "View all commands") {
             @Override
-            public void execute(String[] args) {
+            public void executeInternal(String[] args) {
                 Calculator.getConsole().info("All commands:");
                 for (Command cmd : getCommands()) Calculator.getConsole().info("  - " + cmd.getName() + " (" + cmd.getInfo() + ")");
             }

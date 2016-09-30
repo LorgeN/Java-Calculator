@@ -46,6 +46,6 @@ public class Number implements NumericalObject {
 
     public Long[] factorize() {
         if (!this.isInteger()) throw new IllegalArgumentException("Number isn't integer!");
-        return NumberUtils.factorize((long) this.getPrimitiveValue());
+        return NumberUtils.factorize(this.longValue());
     }
 }

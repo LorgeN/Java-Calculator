@@ -1,5 +1,6 @@
 package com.lorgen.calculator.ui;
 
+import com.lorgen.calculator.Calculator;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -15,7 +16,16 @@ public abstract class Command {
         this.aliases = aliases;
     }
 
-    public abstract void execute(String[] args);
+    public void execute(String[] args) {
+        try {
+            executeInternal(args);
+        } catch (Exception e) {
+            Calculator.getConsole().err(e.getMessage());
+            return;
+        }
+    }
+
+    protected abstract void executeInternal(String[] args);
 
     public String toString(String[] args) {
         StringBuilder builder = new StringBuilder();

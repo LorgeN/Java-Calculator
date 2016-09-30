@@ -12,7 +12,7 @@ public class FactorizeCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void executeInternal(String[] args) {
             if (args.length == 0) {
                 Calculator.getConsole().err("Not enough arguments!");
                 return;

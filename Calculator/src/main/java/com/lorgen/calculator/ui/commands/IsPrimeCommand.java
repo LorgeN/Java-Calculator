@@ -12,7 +12,7 @@ public class IsPrimeCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void executeInternal(String[] args) {
         if (args.length == 0 || !args[0].matches("[0-9]+")) Calculator.getConsole().err("Please input a number!");
         else Calculator.getConsole().result(TextColor.LIGHT_PURPLE + args[0] + TextColor.RESET + " is" + (NumberUtils.isPrime(Integer.valueOf(args[0])) ? "" : "n't") + " a prime number");
     }
