@@ -22,8 +22,6 @@ import java.util.regex.Matcher;
 
 public class Evaluator {
     public List<MathematicalObject> evaluate(String string) throws EvaluationException {
-        Calculator.getConsole().info("Evaluating string " + TextColor.LIGHT_PURPLE + "\"" + string + "\":");
-
         LinkedList<MathematicalObject> components = new LinkedList<>();
 
         Optional<MathematicalObject> objectOptional = this.getComponent(string);
@@ -83,7 +81,7 @@ public class Evaluator {
         }
     }
 
-    private Optional<MathematicalObject> getComponent(String string) throws EvaluationException {
+    public Optional<MathematicalObject> getComponent(String string) throws EvaluationException {
         if (string.matches("-?\\d+\\.?\\d*")) return Optional.of(NumericalObject.fromDouble(Double.parseDouble(string)));
         else if (string.length() == 1) {
             char ch = string.charAt(0);

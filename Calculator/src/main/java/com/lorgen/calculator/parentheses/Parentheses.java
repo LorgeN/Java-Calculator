@@ -8,7 +8,7 @@ public interface Parentheses extends MathematicalObject {
     String getEvaluatedString();
     void printComponents();
 
-    static Parentheses of(List<MathematicalObject> components) {
-        return new NumericalParentheses(components);
+    static Parentheses of(List<MathematicalObject> objects) {
+        return new NumericalParentheses(objects);
     }
 }

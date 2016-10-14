@@ -53,39 +53,21 @@ public class NumericalOperation implements Operation {
 
     @Override
     public void printComponents() {
-        for (MathematicalObject component : this.getComponents())
-            Calculator.getConsole().info("  - " + ((component instanceof Enum) ? WordUtils.capitalizeFully(((Enum) component).name(), '_') : component.getClass().getSimpleName()) + ": " + TextColor.LIGHT_PURPLE + component.getString());
+        for (MathematicalObject component : this.getComponents()) Calculator.getConsole().info("  - " + ((component
+                instanceof Enum) ? WordUtils.capitalizeFully(((Enum) component).name(), '_') : component.getClass()
+                .getSimpleName()) + ": " + TextColor.LIGHT_PURPLE + component.getString());
     }
 
     /* Internal */
+
     private void prioritize() throws UnexpectedResultException {
         Calculator.getFunctionManager().identifyFunctions(this.getComponents());
         Calculator.getAssumptionManager().insertAssumedOperators(this.getComponents());
-        Set<Priority> contains = new HashSet<>();
-        this.getComponents().parallelStream().filter(component -> component instanceof Operator).forEach(component -> contains.add(((Operator) component).getPriority()));
-
-        if (contains.contains(Priority.HIGHEST)) {
-            processPriority(Priority.HIGHEST);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGHEST " + TextColor.PURPLE + "(\"(--)\", \"x^y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getString() + TextColor.RESET + ":");
-            this.printComponents();
-        }
-
-        if (contains.contains(Priority.HIGHER)) {
-            processPriority(Priority.HIGHER);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "HIGHER " + TextColor.PURPLE + "(\"x*y\", \"x/y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getString() + TextColor.RESET + ":");
-            this.printComponents();
-        }
-        
-        if (contains.contains(Priority.STANDARD)) {
-            processPriority(Priority.STANDARD);
-            Calculator.getConsole().info("Sorted components for priority level " + TextColor.LIGHT_PURPLE + "STANDARD " + TextColor.PURPLE + "(\"x-y\", \"x+y\")" + TextColor.RESET + " in operation " + TextColor.LIGHT_PURPLE + this.getString() + TextColor.RESET + ":");
-            this.printComponents();
-        }
-
-        if (this.getComponents().size() > 1)
-            throw new UnexpectedResultException("More components than expected! " + this.getEvaluatedString());
-        if (!(this.getComponents().get(0) instanceof NumericalObject))
-            throw new UnexpectedResultException("Final component isn't a numerical value!" + this.getEvaluatedString());
+        processPriority(Priority.HIGHEST);
+        processPriority(Priority.HIGHER);
+        processPriority(Priority.STANDARD);
+        if (this.getComponents().size() > 1) throw new UnexpectedResultException("More components than expected!");
+        if (!(this.getComponents().get(0) instanceof NumericalObject)) throw new UnexpectedResultException("Final component isn't a numerical value!");
     }
 
     private void processPriority(Priority priority) {

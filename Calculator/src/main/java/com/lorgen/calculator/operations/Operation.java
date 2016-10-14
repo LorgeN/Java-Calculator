@@ -1,7 +1,7 @@
 package com.lorgen.calculator.operations;
 
-import com.lorgen.calculator.objects.NumericalObject;
 import com.lorgen.calculator.objects.MathematicalObject;
+import com.lorgen.calculator.objects.NumericalObject;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public interface Operation extends NumericalObject {
     void printComponents();
     boolean containsVariables();
 
-    static Operation of(List<MathematicalObject> components) {
-        return new NumericalOperation(components);
+    static Operation of(List<MathematicalObject> objects) {
+        return new NumericalOperation(objects);
     }
 }
